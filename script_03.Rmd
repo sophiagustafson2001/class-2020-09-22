@@ -14,13 +14,16 @@ Load **tidyverse**, **readxl* and **janitor** into your setup chunk.
 library(tidyverse)
 library(readxl)
 library(janitor)
+library(dplyr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
 ### Scene 0
 
-**Prompt:**  First, figure out what is wrong with the `sep_old` object. Edit the above code to fix it.
+**Prompt:**  First, figure out what is wrong with the `sep_old` object. Edit the above code to fix it. 
+
+
 
 ```{r sc0}
 # Most groups got something like this going last week. Note the use of skip = 3
@@ -40,19 +43,35 @@ sep_old <-
          title = course_title,
          name = course_name,
          department = course_department) %>% 
-  filter(u_grad > 10)
+  group_by(id,title,name,department) %>%
+  summarize(u_grad = sum(u_grad), .groups = "drop" ) %>%
+  filter(u_grad > 10) 
 
 # But this is not correct! Look for Gov 50: Data. What do you see? What can you
 # do to clean it up?
 ```
 
 
-
-
 ### Scene 1
 
 **Prompt:** Read in and clean the new data, creating an object called `sep_new`. 
 
+```{r}
+sep_new <- 
+  read_excel("new_data/class_enrollment_summary_by_term_9-21-2020.xlsx", 
+             skip = 3) %>% 
+  clean_names() %>% 
+  filter(! is.na(course_title)) %>% 
+  select(-grad, -non_degree, -x_reg, -vus, -employee, 
+         -withdraw, -total, -instructor_full_name, -course_section_code) %>%
+  rename(id = course_id,
+         title = course_title,
+         name = course_name,
+         department = course_department) %>% 
+  group_by(id,title,name,department) %>%
+  summarize(u_grad = sum(u_grad), .groups = "drop" ) %>%
+  filter(u_grad > 10) 
+```
 
 
 ### Scene 2
@@ -60,16 +79,24 @@ sep_old <-
 **Prompt:** Dean Amanda Claybaugh is concerned about the drop in undergradaute enrollment in some courses between September 1 and today. She wants you to analyze this issue. Before you dive into the details, provide some bullet points as to how Wisdom and Temperance apply to this situation. Every student should have several bullet points. Someone will be asked to share their screen and discuss.
 
 Before we start on the model, Wisdom suggests we should:
-
+* Define what we want to know: classes with a high negative enrollment percentage change between the beginning of the semester and now 
+* We want to define parallells between classes that all share that negative change characteristic
+*Where in the time did most of the students that dropped out drop out 
 
 After we have a model, Temperance suggests we should:
-
+* Admit the limits of models and try to rectify them 
+* One limit is that the reasons for dropping the class are not listed so we may not see a clear trend of WHY students dropped out. We also do not have course enrollment data for every day of the week so we may not be able to draw a linear time plot 
 
 
 ### Scene 3
 
 **Prompt:** Which classes had the biggest increases and decreases in undergraduate enrollments between September 1 and today? Make a graphic that shows the 5 biggest increases and decreases. Make it look nice.
 
+```{r}
+mutate()
+
+##sep_new$u_grad
+```
 
 
 
